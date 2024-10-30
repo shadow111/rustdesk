@@ -358,7 +358,7 @@ class _GeneralState extends State<_General> {
             _Card(title: 'Language', children: [language()]),
             if (!isWeb) hwcodec(),
             if (!isWeb) audio(context),
-            if (!isWeb) record(context),
+            // if (!isWeb) record(context),
             if (!isWeb) WaylandCard(),
             other()
           ],
