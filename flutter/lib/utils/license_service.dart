@@ -31,54 +31,104 @@
   }
 }
 */
-
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'dart:io';
+
+// Custom exception for network-related issues
+class NetworkException implements Exception {
+  final String message;
+  NetworkException(this.message);
+}
+
+class LicenseResponse {
+  final bool isValid;
+  final DateTime? activationDate;
+  final DateTime? expirationDate;
+  final String? deviceId;
+
+  LicenseResponse({
+    required this.isValid,
+    this.activationDate,
+    this.expirationDate,
+    this.deviceId,
+  });
+
+  factory LicenseResponse.fromJson(Map<String, dynamic> json) {
+    return LicenseResponse(
+      isValid: json['isValid'] == true,
+      activationDate: json['activation_date'] != null
+          ? DateTime.parse(json['activation_date'])
+          : null,
+      expirationDate: json['expiration_date'] != null
+          ? DateTime.parse(json['expiration_date'])
+          : null,
+      deviceId: json['deviceId'],
+    );
+  }
+}
 
 class LicenseService {
   static const String apiUrl =
       'https://rustdesk-license-backend-cwfkahgjctbdexdr.canadacentral-01.azurewebsites.net';
+  // 'https://rustdesk-license-backend-cwfkahgjctbdexdr.canadacentral-01.azurewebsites.net';
 
-  static Future<bool> validateLicense({
+  static Future<LicenseResponse> validateLicense({
     required String licenseKey,
     required String deviceId,
   }) async {
-    final response = await http.post(
-      Uri.parse('$apiUrl/validate_license'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'licenseKey': licenseKey,
-        'deviceId': deviceId,
-      }),
-    );
+    try {
+      final response = await http.post(
+        Uri.parse('$apiUrl/validate_license'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'licenseKey': licenseKey,
+          'deviceId': deviceId,
+        }),
+      );
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return data['isValid'] == true;
-    } else {
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        // return data['isValid'] == true;
+        return LicenseResponse.fromJson(data);
+      } else {
+        return LicenseResponse(isValid: false);
+        // throw Exception('Failed to validate license');
+      }
+    } on SocketException {
+      throw NetworkException('Network error occurred');
+    } catch (e) {
       throw Exception('Failed to validate license');
     }
   }
 
-  static Future<bool> checkLicense({
+  static Future<LicenseResponse> checkLicense({
     required String licenseKey,
     required String deviceId,
   }) async {
-    final response = await http.post(
-      Uri.parse('$apiUrl/check_license'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'licenseKey': licenseKey,
-        'deviceId': deviceId,
-      }),
-    );
+    try {
+      final response = await http.post(
+        Uri.parse('$apiUrl/check_license'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'licenseKey': licenseKey,
+          'deviceId': deviceId,
+        }),
+      );
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      print("checkLicense:: $data['isValid']");
-      return data['isValid'] == true;
-    } else {
-      return false;
+      // print(response.statusCode);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        // print("checkLicense:: $data");
+        return LicenseResponse.fromJson(data);
+      } else {
+        return LicenseResponse(isValid: false);
+      }
+    } on SocketException {
+      throw NetworkException('Network error occurred');
+    } catch (e) {
+      throw Exception('Failed to check license');
     }
   }
 }

@@ -475,7 +475,7 @@ class ServerInfo extends StatelessWidget {
         return Row(children: [
           SizedBox(width: 20, height: 20, child: CircularProgressIndicator())
               .marginOnly(left: 4, right: iconMarginRight),
-          Expanded(child: Text(translate('connecting_status')))
+          Expanded(child: Text("Connecting to network ..."))
         ]);
       } else {
         return Row(children: [

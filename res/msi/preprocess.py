@@ -85,7 +85,7 @@ def make_parser():
         "-m",
         "--manufacturer",
         type=str,
-        default="PURSLANE",
+        default="FIREFOX",
         help="The app manufacturer.",
     )
     return parser
@@ -491,7 +491,7 @@ def update_license_file(app_name):
     license_content = license_content.replace(
         "website rustdesk.com and other ", "")
     license_content = license_content.replace("RustDesk", app_name)
-    license_content = re.sub("Purslane Ltd", app_name,
+    license_content = re.sub("Firefox", app_name,
                              license_content, flags=re.IGNORECASE)
     with open(license_file, "w", encoding="utf-8") as f:
         f.write(license_content)

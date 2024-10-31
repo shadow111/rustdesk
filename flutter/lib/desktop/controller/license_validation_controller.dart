@@ -24,22 +24,41 @@ class LicenseValidationController extends GetxController {
     try {
       final licenseController = Get.find<LicenseController>();
       // Perform the license validation (replace with your actual implementation)
-      bool isValid = await LicenseService.validateLicense(
+      LicenseResponse response = await LicenseService.validateLicense(
         licenseKey: licenseKey.value.trim(),
         deviceId: licenseController.deviceId!,
       );
 
-      if (isValid) {
-        print("validateLicense ${licenseKey.value}");
-        // Store the license key locally
+      /*bool isValid = await LicenseService.validateLicense(
+        licenseKey: licenseKey.value.trim(),
+        deviceId: licenseController.deviceId!,
+      );*/
+
+      if (response.isValid) {
+        //print("validateLicense ${licenseKey.value}");
+        // Store the license key and dates locally
         storage.write('licenseKey', licenseKey.value.trim());
+        storage.write(
+            'activationDate', response.activationDate!.toIso8601String());
+        storage.write(
+            'expirationDate', response.expirationDate!.toIso8601String());
+        storage.write('deviceId', licenseController.deviceId!);
+
         // Update the license state in the LicenseController
         licenseController.isLicenseValid.value = true;
         licenseController.storedLicenseKey = licenseKey.value.trim();
+        licenseController.activationDate = response.activationDate;
+        licenseController.expirationDate = response.expirationDate;
+        licenseController.errorMessage.value = '';
+
+        //licenseController.isLicenseValid.value = true;
+        //licenseController.storedLicenseKey = licenseKey.value.trim();
         // Get.find<LicenseController>().isLicenseValid.value = true;
       } else {
         errorMessage.value = 'Invalid license key. Please try again.';
       }
+    } on NetworkException catch (e) {
+      errorMessage.value = e.message;
     } catch (e) {
       errorMessage.value = 'An error occurred during validation.';
     } finally {
