@@ -30,7 +30,7 @@ class LicenseController extends GetxController {
   }
 
   Future<String?> _getDeviceId() async {
-    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    /*DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     String? id;
     if (GetPlatform.isAndroid) {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
@@ -54,8 +54,8 @@ class LicenseController extends GetxController {
     } else if (isMacOS) {
       MacOsDeviceInfo macOsInfo = await deviceInfo.macOsInfo;
       id = macOsInfo.systemGUID ?? '';
-    }
-    return id;
+    }*/
+    return "temp_device_id";
   }
 
   void _empty_storage() {

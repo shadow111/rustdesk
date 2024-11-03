@@ -100,10 +100,12 @@ class LicenseValidationController extends GetxController {
       } else {
         errorMessage.value = 'Invalid license key. Please try again.';
       }
-    } on NetworkException catch (e) {
+    } /*on NetworkException catch (e) {
       errorMessage.value = e.message;
-    } catch (e) {
-      errorMessage.value = 'An error occurred during validation.';
+    }*/
+    catch (e) {
+      errorMessage.value =
+          'An error occurred during validation: ${e.toString()}';
     } finally {
       isLoading.value = false;
     }
