@@ -26,7 +26,7 @@ class LicenseController extends GetxController {
 
   void _initDeviceId() async {
     deviceId = await _getDeviceId();
-    checkLicense();
+    checkLicenseLocally();
   }
 
   Future<String?> _getDeviceId() async {
@@ -134,6 +134,44 @@ class LicenseController extends GetxController {
     } finally {
       isCheckingActivation.value = false;
     }*/
+  }
+
+  void checkLicenseLocally() async {
+    isCheckingActivation.value = true;
+    storedLicenseKey = storage.read('licenseKey');
+    activationDate = storage.read('activationDate') != null
+        ? DateTime.parse(storage.read('activationDate'))
+        : null;
+    expirationDate = storage.read('expirationDate') != null
+        ? DateTime.parse(storage.read('expirationDate'))
+        : null;
+    if (storedLicenseKey == null ||
+        activationDate == null ||
+        expirationDate == null) {
+      isLicenseValid.value = false;
+    } else {
+      // try {
+      // Attempt to validate license with the backend
+      LicenseResponse response = await LicenseService.checkLicenseLocally(
+        licenseKey: storedLicenseKey!,
+        deviceId: deviceId!,
+      );
+      // if (response.isValid) {
+      // Update local cache with activation and expiration dates
+      activationDate = response.activationDate;
+      expirationDate = response.expirationDate;
+      storage.write('activationDate', activationDate!.toIso8601String());
+      storage.write('expirationDate', expirationDate!.toIso8601String());
+      bool isValid = _validateLocally();
+      isLicenseValid.value = isValid;
+      if (!isValid) {
+        errorMessage.value =
+            'Cannot verify license online and local license is invalid.';
+      } else {
+        errorMessage.value = '';
+      }
+    }
+    isCheckingActivation.value = false;
   }
 
   bool _validateLocally() {

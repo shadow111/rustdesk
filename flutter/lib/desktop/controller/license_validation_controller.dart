@@ -65,4 +65,47 @@ class LicenseValidationController extends GetxController {
       isLoading.value = false;
     }
   }
+
+  void validateLicenseLocally() async {
+    if (licenseKey.value.trim().isEmpty) {
+      errorMessage.value = 'Please enter your license key.';
+      return;
+    }
+
+    // Start loading
+    isLoading.value = true;
+    errorMessage.value = '';
+
+    try {
+      final licenseController = Get.find<LicenseController>();
+      LicenseResponse response = await LicenseService.validateLicenseLocally(
+        licenseKey: licenseKey.value.trim(),
+        deviceId: licenseController.deviceId!,
+      );
+
+      if (response.isValid) {
+        storage.write('licenseKey', licenseKey.value.trim());
+        storage.write(
+            'activationDate', response.activationDate!.toIso8601String());
+        storage.write(
+            'expirationDate', response.expirationDate!.toIso8601String());
+        storage.write('deviceId', licenseController.deviceId!);
+
+        // Update the license state in the LicenseController
+        licenseController.isLicenseValid.value = true;
+        licenseController.storedLicenseKey = licenseKey.value.trim();
+        licenseController.activationDate = response.activationDate;
+        licenseController.expirationDate = response.expirationDate;
+        licenseController.errorMessage.value = '';
+      } else {
+        errorMessage.value = 'Invalid license key. Please try again.';
+      }
+    } on NetworkException catch (e) {
+      errorMessage.value = e.message;
+    } catch (e) {
+      errorMessage.value = 'An error occurred during validation.';
+    } finally {
+      isLoading.value = false;
+    }
+  }
 }
