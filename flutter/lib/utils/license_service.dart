@@ -32,6 +32,7 @@
 }
 */
 import 'dart:convert';
+import 'package:flutter_hbb/utils/app_logger.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io';
 
@@ -77,6 +78,7 @@ class LicenseService {
     required String licenseKey,
     required String deviceId,
   }) async {
+    SimpleLogger.log('Sending validateLicense request');
     try {
       final response = await http.post(
         Uri.parse('$apiUrl/validate_license'),
@@ -87,6 +89,8 @@ class LicenseService {
         }),
       );
 
+      SimpleLogger.log('Received response: ${response.body}');
+
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         // return data['isValid'] == true;
@@ -96,8 +100,10 @@ class LicenseService {
         // throw Exception('Failed to validate license');
       }
     } on SocketException {
+      SimpleLogger.log('Network error occurred');
       throw NetworkException('Network error occurred');
     } catch (e) {
+      SimpleLogger.log('Error in validateLicense: $e');
       throw Exception('Failed to validate license');
     }
   }
@@ -106,6 +112,7 @@ class LicenseService {
     required String licenseKey,
     required String deviceId,
   }) async {
+    SimpleLogger.log('Sending checkLicense request');
     try {
       final response = await http.post(
         Uri.parse('$apiUrl/check_license'),
@@ -115,6 +122,8 @@ class LicenseService {
           'deviceId': deviceId,
         }),
       );
+
+      SimpleLogger.log('Received response: ${response.body}');
 
       // print(response.statusCode);
 
@@ -126,8 +135,10 @@ class LicenseService {
         return LicenseResponse(isValid: false);
       }
     } on SocketException {
+      SimpleLogger.log('Network error occurred');
       throw NetworkException('Network error occurred');
     } catch (e) {
+      SimpleLogger.log('Error in checkLicense: $e');
       throw Exception('Failed to check license');
     }
   }

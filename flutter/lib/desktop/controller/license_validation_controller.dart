@@ -1,4 +1,5 @@
 import 'package:flutter_hbb/desktop/controller/license_controller.dart';
+import 'package:flutter_hbb/utils/app_logger.dart';
 import 'package:flutter_hbb/utils/license_service.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -12,6 +13,7 @@ class LicenseValidationController extends GetxController {
 
   // Method to validate the license
   void validateLicense() async {
+    SimpleLogger.log('Validating license key: ${licenseKey.value.trim()}');
     if (licenseKey.value.trim().isEmpty) {
       errorMessage.value = 'Please enter your license key.';
       return;
@@ -57,9 +59,12 @@ class LicenseValidationController extends GetxController {
       } else {
         errorMessage.value = 'Invalid license key. Please try again.';
       }
+      SimpleLogger.log('License key validated');
     } on NetworkException catch (e) {
+      SimpleLogger.log('NetworkException during license validation: $e');
       errorMessage.value = e.message;
     } catch (e) {
+      SimpleLogger.log('Error during license validation: $e');
       errorMessage.value = 'An error occurred during validation.';
     } finally {
       isLoading.value = false;
