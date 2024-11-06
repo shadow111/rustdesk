@@ -20,9 +20,9 @@ class LicenseController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // _empty_storage();
-    // checkLicense();
     SimpleLogger.log('LicenseController initialized');
+    _empty_storage();
+    // checkLicense();
     _initDeviceId();
   }
 
@@ -34,6 +34,7 @@ class LicenseController extends GetxController {
   }
 
   Future<String?> _getDeviceId() async {
+    SimpleLogger.log('Start getting device Id');
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     String? id;
     if (GetPlatform.isAndroid) {
@@ -42,20 +43,22 @@ class LicenseController extends GetxController {
     } else if (GetPlatform.isIOS) {
       IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
       id = iosInfo.identifierForVendor.hashCode.toString();
-    } else if (isLinux) {
+    } else if (GetPlatform.isLinux) {
       LinuxDeviceInfo linuxInfo = await deviceInfo.linuxInfo;
 
       id = linuxInfo.machineId ?? linuxInfo.id;
-    } else if (isWindows) {
+    } else if (GetPlatform.isWindows) {
+      SimpleLogger.log('Platform isWindows');
       try {
         // request windows build number to fix overflow on win7
         windowsBuildNumber = getWindowsTargetBuildNumber();
         WindowsDeviceInfo winInfo = await deviceInfo.windowsInfo;
         id = winInfo.deviceId;
       } catch (e) {
+        SimpleLogger.log('Error getting deviceId for Windows $e');
         id = "unknown";
       }
-    } else if (isMacOS) {
+    } else if (GetPlatform.isMacOS) {
       MacOsDeviceInfo macOsInfo = await deviceInfo.macOsInfo;
       id = macOsInfo.systemGUID ?? '';
     }
@@ -63,6 +66,7 @@ class LicenseController extends GetxController {
   }
 
   void _empty_storage() {
+    SimpleLogger.log('Start Emtying local storage');
     storage.remove('licenseKey');
     storage.remove('activationDate');
     storage.remove('expirationDate');
@@ -82,24 +86,14 @@ class LicenseController extends GetxController {
     if (storedLicenseKey == null ||
         activationDate == null ||
         expirationDate == null) {
-      // print("checkLicense can't find storedLicenseKey");
       isLicenseValid.value = false;
     } else {
-      /*print("checkLicense find ${storedLicenseKey}");
-        // Validate the license with the server
-        bool isValid = await LicenseService.checkLicense(
-          licenseKey: storedLicenseKey!,
-          deviceId: deviceId!,
-        );
-        isLicenseValid.value = isValid;*/
       try {
         // Attempt to validate license with the backend
         LicenseResponse response = await LicenseService.checkLicense(
           licenseKey: storedLicenseKey!,
           deviceId: deviceId!,
         );
-        // print("LicenseController::checkLicense");
-        // print(response.isValid);
         if (response.isValid) {
           // Update local cache with activation and expiration dates
           activationDate = response.activationDate;
