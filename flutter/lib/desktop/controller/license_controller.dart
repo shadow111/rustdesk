@@ -18,23 +18,27 @@ class LicenseController extends GetxController {
   var errorMessage = ''.obs;
 
   @override
-  void onInit() {
+  void onInit()  {
     super.onInit();
-    SimpleLogger.log('LicenseController initialized');
-    _empty_storage();
-    // checkLicense();
+    print('LicenseController onInit');
+    // _empty_storage();
     _initDeviceId();
   }
 
-  void _initDeviceId() async {
-    SimpleLogger.log('Initializing device ID');
-    deviceId = await _getDeviceId();
-    SimpleLogger.log('Device ID obtained: $deviceId');
-    checkLicense();
+
+  Future<void> _initDeviceId() async {
+    print('Initializing device ID');
+    _getDeviceId().then((value) async {
+      deviceId = value;
+      print('Device ID obtained: $deviceId');
+      await checkLicense();
+    });
+    
+    
   }
 
   Future<String?> _getDeviceId() async {
-    SimpleLogger.log('Start getting device Id');
+    print('Start getting device Id');
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     String? id;
     if (GetPlatform.isAndroid) {
@@ -48,14 +52,14 @@ class LicenseController extends GetxController {
 
       id = linuxInfo.machineId ?? linuxInfo.id;
     } else if (GetPlatform.isWindows) {
-      SimpleLogger.log('Platform isWindows');
+      print('Platform isWindows');
       try {
         // request windows build number to fix overflow on win7
         windowsBuildNumber = getWindowsTargetBuildNumber();
         WindowsDeviceInfo winInfo = await deviceInfo.windowsInfo;
         id = winInfo.deviceId;
       } catch (e) {
-        SimpleLogger.log('Error getting deviceId for Windows $e');
+        print('Error getting deviceId for Windows $e');
         id = "unknown";
       }
     } else if (GetPlatform.isMacOS) {
@@ -66,15 +70,15 @@ class LicenseController extends GetxController {
   }
 
   void _empty_storage() {
-    SimpleLogger.log('Start Emtying local storage');
+    print('Start Emtying local storage');
     storage.remove('licenseKey');
     storage.remove('activationDate');
     storage.remove('expirationDate');
     storage.remove('deviceId');
   }
 
-  void checkLicense() async {
-    SimpleLogger.log('Starting license check');
+  Future<void> checkLicense() async {
+    print('Starting license check');
     isCheckingActivation.value = true;
     storedLicenseKey = storage.read('licenseKey');
     activationDate = storage.read('activationDate') != null
@@ -106,11 +110,11 @@ class LicenseController extends GetxController {
           isLicenseValid.value = false;
           errorMessage.value = 'Invalid license key.';
         }
-        SimpleLogger.log('License is checked');
+        print('License is checked');
       } on NetworkException {
         // Network issue: perform local validation
         // print("Network issue detected, performing local validation.");
-        SimpleLogger.log('Network issue detected, performing local validation');
+        print('Network issue detected, performing local validation');
         bool isValid = _validateLocally();
         isLicenseValid.value = isValid;
         if (!isValid) {
@@ -120,7 +124,7 @@ class LicenseController extends GetxController {
           errorMessage.value = 'Running in offline mode with cached license.';
         }
       } catch (e) {
-        SimpleLogger.log('Error during license check: $e');
+        print('Error during license check: $e');
         isLicenseValid.value = false;
         errorMessage.value = 'An unexpected error occurred.';
       }

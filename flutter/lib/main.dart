@@ -46,9 +46,12 @@ Future<void> main(List<String> args) async {
   earlyAssert();
   WidgetsFlutterBinding.ensureInitialized();
 
+  
+  
   await GetStorage.init();
-  await SimpleLogger.init();
+  await AppLogger().init();
   Get.put<LicenseController>(LicenseController(), permanent: true);
+  
 
   debugPrint("launch args: $args");
   kBootArgs = List.from(args);
@@ -419,7 +422,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    SimpleLogger.dispose();
+    AppLogger().close();
     super.dispose();
   }
 

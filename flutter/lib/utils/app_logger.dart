@@ -1,41 +1,51 @@
-// simple_logger.dart
 import 'dart:io';
+import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as path;
 
-class SimpleLogger {
-  static IOSink? _logSink;
+class FileOutput extends LogOutput {
+  FileOutput(this.file);
+  
+  final File file;
+  
+  @override
+  void output(OutputEvent event) async {
+    final logMessages = event.lines.join('\n');
+    await file.writeAsString('$logMessages\n', mode: FileMode.append);
+  }
+}
 
-  static Future<void> init() async {
-    final directory = await getApplicationSupportDirectory();
-    final logDirPath = path.join(directory.path, 'logs');
-    final logDir = Directory(logDirPath);
+class AppLogger {
+  late final Logger _logger;
+  late final File _logFile;
 
-    // Ensure the directory exists
+  AppLogger._internal();
+
+  static final AppLogger _instance = AppLogger._internal();
+  
+  factory AppLogger() {
+    return _instance;
+  }
+
+  Future<void> init() async {
+    final directory = await getApplicationDocumentsDirectory();
+    print(directory.path);
+    final logDir = Directory('${directory.path}/logs');
+    // Create the directory if it doesn't exist
     if (!(await logDir.exists())) {
       await logDir.create(recursive: true);
     }
+    _logFile = File('${logDir.path}/app_logs.txt');
 
-    final logFilePath = path.join(logDirPath, 'app.log');
-    final logFile = File(logFilePath);
-
-    _logSink = logFile.openWrite(mode: FileMode.append);
+    _logger = Logger(
+      output: FileOutput(_logFile),
+    );
   }
 
-  static void log(String message) {
-    final timestamp = DateTime.now().toIso8601String();
-    final logMessage = '[$timestamp] $message';
-
-    // Write to the log file
-    _logSink?.writeln(logMessage);
-    _logSink?.flush();
-
-    // Optionally, also print to the console (visible when running from an IDE or command line)
-    // Remove the following line if you don't want console output
-    print(logMessage);
+ void log(String message) {
+    _logger.i(message);
   }
 
-  static void dispose() {
-    _logSink?.close();
+  void close () {
+    _logger.close();
   }
 }
