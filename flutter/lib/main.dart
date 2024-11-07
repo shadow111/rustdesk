@@ -49,7 +49,7 @@ Future<void> main(List<String> args) async {
   
   
   await GetStorage.init();
-  await AppLogger().init();
+  // await AppLogger().init();
   Get.put<LicenseController>(LicenseController(), permanent: true);
   
 

@@ -20,17 +20,17 @@ class LicenseController extends GetxController {
   @override
   void onInit()  {
     super.onInit();
-    print('LicenseController onInit');
+    AppLogger().log('LicenseController onInit');
     // _empty_storage();
     _initDeviceId();
   }
 
 
   Future<void> _initDeviceId() async {
-    print('Initializing device ID');
+    AppLogger().log('Initializing device ID');
     _getDeviceId().then((value) async {
       deviceId = value;
-      print('Device ID obtained: $deviceId');
+      AppLogger().log('Device ID obtained: $deviceId');
       await checkLicense();
     });
     
@@ -38,7 +38,7 @@ class LicenseController extends GetxController {
   }
 
   Future<String?> _getDeviceId() async {
-    print('Start getting device Id');
+    AppLogger().log('Start getting device Id');
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     String? id;
     if (GetPlatform.isAndroid) {
@@ -52,14 +52,14 @@ class LicenseController extends GetxController {
 
       id = linuxInfo.machineId ?? linuxInfo.id;
     } else if (GetPlatform.isWindows) {
-      print('Platform isWindows');
+      AppLogger().log('Platform isWindows');
       try {
         // request windows build number to fix overflow on win7
         windowsBuildNumber = getWindowsTargetBuildNumber();
         WindowsDeviceInfo winInfo = await deviceInfo.windowsInfo;
         id = winInfo.deviceId;
       } catch (e) {
-        print('Error getting deviceId for Windows $e');
+        AppLogger().log('Error getting deviceId for Windows $e');
         id = "unknown";
       }
     } else if (GetPlatform.isMacOS) {
@@ -70,7 +70,7 @@ class LicenseController extends GetxController {
   }
 
   void _empty_storage() {
-    print('Start Emtying local storage');
+    AppLogger().log('Start Emtying local storage');
     storage.remove('licenseKey');
     storage.remove('activationDate');
     storage.remove('expirationDate');
@@ -78,7 +78,7 @@ class LicenseController extends GetxController {
   }
 
   Future<void> checkLicense() async {
-    print('Starting license check');
+    AppLogger().log('Starting license check');
     isCheckingActivation.value = true;
     storedLicenseKey = storage.read('licenseKey');
     activationDate = storage.read('activationDate') != null
@@ -110,11 +110,11 @@ class LicenseController extends GetxController {
           isLicenseValid.value = false;
           errorMessage.value = 'Invalid license key.';
         }
-        print('License is checked');
+        AppLogger().log('License is checked');
       } on NetworkException {
         // Network issue: perform local validation
-        // print("Network issue detected, performing local validation.");
-        print('Network issue detected, performing local validation');
+        // AppLogger().log("Network issue detected, performing local validation.");
+        AppLogger().log('Network issue detected, performing local validation');
         bool isValid = _validateLocally();
         isLicenseValid.value = isValid;
         if (!isValid) {
@@ -124,7 +124,7 @@ class LicenseController extends GetxController {
           errorMessage.value = 'Running in offline mode with cached license.';
         }
       } catch (e) {
-        print('Error during license check: $e');
+        AppLogger().log('Error during license check: $e');
         isLicenseValid.value = false;
         errorMessage.value = 'An unexpected error occurred.';
       }
@@ -139,29 +139,29 @@ class LicenseController extends GetxController {
   }
 
   bool _validateLocally() {
-    // print("LicenseController::_validateLocally called");
+    // AppLogger().log("LicenseController::_validateLocally called");
     if (activationDate == null || expirationDate == null) {
-      // print("Local validation failed: Missing activation or expiration dates.");
+      // AppLogger().log("Local validation failed: Missing activation or expiration dates.");
       return false;
     }
 
     // Check if the device ID matches
     String? localDeviceId = storage.read('deviceId');
-    // print("$localDeviceId , $deviceId");
+    // AppLogger().log("$localDeviceId , $deviceId");
     if (localDeviceId != deviceId) {
-      // print("Local validation failed: Device ID does not match.");
+      // AppLogger().log("Local validation failed: Device ID does not match.");
       return false;
     }
 
     // Check if the current date is within the valid period
     DateTime now = DateTime.now();
     if (now.isAfter(expirationDate!)) {
-      //print("Local validation failed: License has expired.");
+      //AppLogger().log("Local validation failed: License has expired.");
       return false;
     }
 
     if (now.isBefore(activationDate!)) {
-      //print("Local validation failed: License not yet active.");
+      //AppLogger().log("Local validation failed: License not yet active.");
       return false;
     }
 

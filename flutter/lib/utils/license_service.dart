@@ -78,7 +78,7 @@ class LicenseService {
     required String licenseKey,
     required String deviceId,
   }) async {
-    print('Sending validateLicense request');
+    AppLogger().log('Sending validateLicense request');
     try {
       final response = await http.post(
         Uri.parse('$apiUrl/validate_license'),
@@ -89,7 +89,7 @@ class LicenseService {
         }),
       );
 
-      print('Received response: ${response.body}');
+      AppLogger().log('Received response: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -100,10 +100,10 @@ class LicenseService {
         // throw Exception('Failed to validate license');
       }
     } on SocketException {
-      print('Network error occurred');
+      AppLogger().log('Network error occurred');
       throw NetworkException('Network error occurred');
     } catch (e) {
-      print('Error in validateLicense: $e');
+      AppLogger().log('Error in validateLicense: $e');
       throw Exception('Failed to validate license');
     }
   }
@@ -112,7 +112,7 @@ class LicenseService {
     required String licenseKey,
     required String deviceId,
   }) async {
-    print('Sending checkLicense request');
+    AppLogger().log('Sending checkLicense request');
     try {
       final response = await http.post(
         Uri.parse('$apiUrl/check_license'),
@@ -123,22 +123,22 @@ class LicenseService {
         }),
       );
 
-      print('Received response: ${response.body}');
+      AppLogger().log('Received response: ${response.body}');
 
-      // print(response.statusCode);
+      // AppLogger().log(response.statusCode);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        // print("checkLicense:: $data");
+        // AppLogger().log("checkLicense:: $data");
         return LicenseResponse.fromJson(data);
       } else {
         return LicenseResponse(isValid: false);
       }
     } on SocketException {
-      print('Network error occurred');
+      AppLogger().log('Network error occurred');
       throw NetworkException('Network error occurred');
     } catch (e) {
-      print('Error in checkLicense: $e');
+      AppLogger().log('Error in checkLicense: $e');
       throw Exception('Failed to check license');
     }
   }

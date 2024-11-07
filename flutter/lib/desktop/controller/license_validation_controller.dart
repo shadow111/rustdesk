@@ -13,7 +13,7 @@ class LicenseValidationController extends GetxController {
 
   // Method to validate the license
   void validateLicense() async {
-    print('Validating license key: ${licenseKey.value.trim()}');
+    AppLogger().log('Validating license key: ${licenseKey.value.trim()}');
     if (licenseKey.value.trim().isEmpty) {
       errorMessage.value = 'Please enter your license key.';
       return;
@@ -37,7 +37,7 @@ class LicenseValidationController extends GetxController {
       );*/
 
       if (response.isValid) {
-        //print("validateLicense ${licenseKey.value}");
+        //AppLogger().log("validateLicense ${licenseKey.value}");
         // Store the license key and dates locally
         storage.write('licenseKey', licenseKey.value.trim());
         storage.write(
@@ -59,12 +59,12 @@ class LicenseValidationController extends GetxController {
       } else {
         errorMessage.value = 'Invalid license key. Please try again.';
       }
-      print('License key validated');
+      AppLogger().log('License key validated');
     } on NetworkException catch (e) {
-      print('NetworkException during license validation: $e');
+      AppLogger().log('NetworkException during license validation: $e');
       errorMessage.value = e.message;
     } catch (e) {
-      print('Error during license validation: $e');
+      AppLogger().log('Error during license validation: $e');
       errorMessage.value = 'An error occurred during validation.';
     } finally {
       isLoading.value = false;
