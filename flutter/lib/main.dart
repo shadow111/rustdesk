@@ -101,7 +101,7 @@ Future<void> main(List<String> args) async {
     await windowManager.ensureInitialized();
     runConnectionManagerScreen();
   } else if (args.contains('--install')) {
-    runInstallPage();
+    //runInstallPage();
   } else {
     desktopType = DesktopType.main;
     await windowManager.ensureInitialized();

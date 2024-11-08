@@ -78,7 +78,7 @@ class LicenseValidationController extends GetxController {
 
     try {
       final licenseController = Get.find<LicenseController>();
-      LicenseResponse response = await LicenseService.validateLicenseLocally(
+      LicenseResponse response = await LocalLicenseService.validateLicenseLocally(
         licenseKey: licenseKey.value.trim(),
         deviceId: licenseController.deviceId!,
       );
@@ -100,9 +100,7 @@ class LicenseValidationController extends GetxController {
       } else {
         errorMessage.value = 'Invalid license key. Please try again.';
       }
-    } /*on NetworkException catch (e) {
-      errorMessage.value = e.message;
-    }*/
+    }
     catch (e) {
       errorMessage.value =
           'An error occurred during validation: ${e.toString()}';

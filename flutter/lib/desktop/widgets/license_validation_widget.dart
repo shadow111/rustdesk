@@ -41,7 +41,7 @@ class LicenseValidationWidget extends StatelessWidget {
                     : SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: controller.validateLicense,
+                          onPressed: controller.validateLicenseLocally,
                           child: Text('Activate'),
                           style: ElevatedButton.styleFrom(
                             padding: EdgeInsets.symmetric(

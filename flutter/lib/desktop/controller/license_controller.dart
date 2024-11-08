@@ -19,7 +19,7 @@ class LicenseController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // _empty_storage();
+    //_empty_storage();
     // checkLicense();
     _initDeviceId();
   }
@@ -30,7 +30,7 @@ class LicenseController extends GetxController {
   }
 
   Future<String?> _getDeviceId() async {
-    /*DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     String? id;
     if (GetPlatform.isAndroid) {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
@@ -54,8 +54,8 @@ class LicenseController extends GetxController {
     } else if (isMacOS) {
       MacOsDeviceInfo macOsInfo = await deviceInfo.macOsInfo;
       id = macOsInfo.systemGUID ?? '';
-    }*/
-    return "temp_device_id";
+    }
+    return id;
   }
 
   void _empty_storage() {
@@ -152,7 +152,7 @@ class LicenseController extends GetxController {
     } else {
       // try {
       // Attempt to validate license with the backend
-      LicenseResponse response = await LicenseService.checkLicenseLocally(
+      LicenseResponse response = await LocalLicenseService.checkLicenseLocally(
         licenseKey: storedLicenseKey!,
         deviceId: deviceId!,
       );

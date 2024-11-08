@@ -31,6 +31,7 @@
   }
 }
 */
+
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'dart:io';
@@ -132,16 +133,28 @@ class LicenseService {
     }
   }
 
+}
+
+class LocalLicenseService {
   static Future<LicenseResponse> validateLicenseLocally({
     required String licenseKey,
     required String deviceId,
   }) async {
-    return LicenseResponse.fromJson({
+    if (licenseKey == "cd5b5a88-0dd5-4ab3-9107-03c72325b35e") {
+      return LicenseResponse.fromJson({
       'isValid': true,
       'activation_date': '2024-11-03T20:06:13Z',
       'expiration_date': '2025-11-03T20:06:13Z',
       'deviceId': deviceId
     });
+    } else {
+      return LicenseResponse.fromJson({
+      'isValid': false,
+      //'activation_date': '2024-11-03T20:06:13Z',
+      //'expiration_date': '2025-11-03T20:06:13Z',
+      //'deviceId': deviceId
+    });
+    }
   }
 
   static Future<LicenseResponse> checkLicenseLocally({
