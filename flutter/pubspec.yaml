@@ -130,7 +130,7 @@ flutter_icons:
   windows:
     generate: true
   macos:
-    image_path: "../res/mac-icon.png"
+    image_path: "../res/icon.png"
     generate: true
   linux: true
   web:
