@@ -163,14 +163,12 @@ class _DesktopSettingPageState extends State<DesktopSettingPage>
           settingTabs.add(_TabInfo(
               tab, 'Plugin', Icons.extension_outlined, Icons.extension));
           break;
-        case SettingsTabKey.account:
-          settingTabs.add(
-              _TabInfo(tab, 'Account', Icons.person_outline, Icons.person));
-          break;
         case SettingsTabKey.about:
           settingTabs
               .add(_TabInfo(tab, 'About', Icons.info_outline, Icons.info));
           break;
+        case SettingsTabKey.account:
+        // TODO: Handle this case.
       }
     }
     return settingTabs;
@@ -360,7 +358,7 @@ class _GeneralState extends State<_General> {
             _Card(title: 'Language', children: [language()]),
             if (!isWeb) hwcodec(),
             if (!isWeb) audio(context),
-            if (!isWeb) record(context),
+            // if (!isWeb) record(context),
             if (!isWeb) WaylandCard(),
             other()
           ],
@@ -1907,23 +1905,23 @@ class _AboutState extends State<_About> {
                     SelectionArea(
                         child: Text('${translate('Fingerprint')}: $fingerprint')
                             .marginSymmetric(vertical: 4.0)),
-                  InkWell(
+                  /*InkWell(
                       onTap: () {
                         launchUrlString('https://rustdesk.com/privacy.html');
                       },
                       child: Text(
                         translate('Privacy Statement'),
                         style: linkStyle,
-                      ).marginSymmetric(vertical: 4.0)),
-                  InkWell(
+                      ).marginSymmetric(vertical: 4.0)),*/
+                  /*InkWell(
                       onTap: () {
                         launchUrlString('https://rustdesk.com');
                       },
                       child: Text(
                         translate('Website'),
                         style: linkStyle,
-                      ).marginSymmetric(vertical: 4.0)),
-                  Container(
+                      ).marginSymmetric(vertical: 4.0)),*/
+                  /*Container(
                     decoration: const BoxDecoration(color: Color(0xFF2c8cff)),
                     padding:
                         const EdgeInsets.symmetric(vertical: 24, horizontal: 8),
@@ -1935,7 +1933,7 @@ class _AboutState extends State<_About> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Copyright © ${DateTime.now().toString().substring(0, 4)} Purslane Ltd.\n$license',
+                                'Copyright © ${DateTime.now().toString().substring(0, 4)} Firefox.\n$license',
                                 style: const TextStyle(color: Colors.white),
                               ),
                               Text(
@@ -1949,7 +1947,7 @@ class _AboutState extends State<_About> {
                         ),
                       ],
                     )),
-                  ).marginSymmetric(vertical: 4.0)
+                  ).marginSymmetric(vertical: 4.0)*/
                 ],
               ).marginOnly(left: _kContentHMargin)
             ]),

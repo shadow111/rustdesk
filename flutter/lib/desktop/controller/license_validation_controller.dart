@@ -1,4 +1,5 @@
 import 'package:flutter_hbb/desktop/controller/license_controller.dart';
+import 'package:flutter_hbb/utils/app_logger.dart';
 import 'package:flutter_hbb/utils/license_service.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -12,6 +13,7 @@ class LicenseValidationController extends GetxController {
 
   // Method to validate the license
   void validateLicense() async {
+    AppLogger().log('Validating license key: ${licenseKey.value.trim()}');
     if (licenseKey.value.trim().isEmpty) {
       errorMessage.value = 'Please enter your license key.';
       return;
@@ -24,23 +26,45 @@ class LicenseValidationController extends GetxController {
     try {
       final licenseController = Get.find<LicenseController>();
       // Perform the license validation (replace with your actual implementation)
-      bool isValid = await LicenseService.validateLicense(
+      LicenseResponse response = await LicenseService.validateLicense(
         licenseKey: licenseKey.value.trim(),
         deviceId: licenseController.deviceId!,
       );
 
-      if (isValid) {
-        print("validateLicense ${licenseKey.value}");
-        // Store the license key locally
+      /*bool isValid = await LicenseService.validateLicense(
+        licenseKey: licenseKey.value.trim(),
+        deviceId: licenseController.deviceId!,
+      );*/
+
+      if (response.isValid) {
+        //AppLogger().log("validateLicense ${licenseKey.value}");
+        // Store the license key and dates locally
         storage.write('licenseKey', licenseKey.value.trim());
+        storage.write(
+            'activationDate', response.activationDate!.toIso8601String());
+        storage.write(
+            'expirationDate', response.expirationDate!.toIso8601String());
+        storage.write('deviceId', licenseController.deviceId!);
+
         // Update the license state in the LicenseController
         licenseController.isLicenseValid.value = true;
         licenseController.storedLicenseKey = licenseKey.value.trim();
+        licenseController.activationDate = response.activationDate;
+        licenseController.expirationDate = response.expirationDate;
+        licenseController.errorMessage.value = '';
+
+        //licenseController.isLicenseValid.value = true;
+        //licenseController.storedLicenseKey = licenseKey.value.trim();
         // Get.find<LicenseController>().isLicenseValid.value = true;
       } else {
         errorMessage.value = 'Invalid license key. Please try again.';
       }
+      AppLogger().log('License key validated');
+    } on NetworkException catch (e) {
+      AppLogger().log('NetworkException during license validation: $e');
+      errorMessage.value = e.message;
     } catch (e) {
+      AppLogger().log('Error during license validation: $e');
       errorMessage.value = 'An error occurred during validation.';
     } finally {
       isLoading.value = false;

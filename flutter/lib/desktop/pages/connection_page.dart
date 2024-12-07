@@ -81,7 +81,7 @@ class _OnlineStatusWidgetState extends State<OnlineStatusWidget> {
             offstage: !(!_svcStopped.value &&
                 stateGlobal.svcStatus.value == SvcStatus.ready &&
                 _svcIsUsingPublicServer.value),
-            child: Row(
+            /*child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(', ', style: TextStyle(fontSize: em)),
@@ -103,7 +103,7 @@ class _OnlineStatusWidgetState extends State<OnlineStatusWidget> {
                   ),
                 )
               ],
-            ),
+            ),*/
           ),
         );
 
@@ -157,7 +157,7 @@ class _OnlineStatusWidgetState extends State<OnlineStatusWidget> {
       _svcStopped.value
           ? translate("Service is not running")
           : stateGlobal.svcStatus.value == SvcStatus.connecting
-              ? translate("connecting_status")
+              ? "Connecting to network ..." // translate("connecting_status")
               : stateGlobal.svcStatus.value == SvcStatus.notReady
                   ? translate("not_ready_status")
                   : translate('Ready'),
